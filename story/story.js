@@ -1,6 +1,8 @@
 const VoiceOver = require('./voice');
 const generate_script = require('./generate_script');
 const generate_image = require('./image_gen');
+const CombineAudio = require('./audioGen');
+
 const fs = require('fs');
 const { promiseHooks } = require('v8');
 
@@ -190,6 +192,16 @@ class Story {
 
         await Promise.all(promises);
     }
+
+    async generateStory () {
+        await this.AudioGen();
+
+        const FolderPath = `./movies/${this.movieId}/audio`;
+
+        CombineAudio(FolderPath);        
+    }
+
+
 }
 
 module.exports = Story;

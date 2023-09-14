@@ -5,7 +5,6 @@ const Story = require('./story/story');
     await story.initialize("a war between robots and humans");
 
     if (story.success) {
-        story.AudioGen();
-        story.ImageGen();
+        story.generateStory();
     }
 })();
