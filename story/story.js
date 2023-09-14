@@ -59,7 +59,6 @@ class Story {
 
     // The main logic of the story generation
     async initialize(about) {
-        console.log(about);
         this.success = false; // If the story generation was successful. i.e. if the story format was correct
 
         // Try to generate a story based on the about string at most 4 times
@@ -119,7 +118,6 @@ class Story {
 
             if (!this.characterVoice[name_]) {
                 const voice = new VoiceOver(name_);
-                console.log("Getting voice", voice)
                 let voiceAlreadyExists = false;
                 for (const existingVoiceName in this.characterVoice) {
                     if (this.characterVoice[existingVoiceName].selectedVoice === voice.selectedVoice) {
@@ -134,7 +132,6 @@ class Story {
 
                 this.characterVoice[name_] = voice;
             }
-
 
 
             this.queue.push({
@@ -200,7 +197,7 @@ class Story {
         fs.writeFileSync(this.promptPath, this.prompt);
     }
 
-    async about (about) {
+    async generate (about) {
         this.prompt = about;
 
         await this.initialize(about);

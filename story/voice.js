@@ -37,7 +37,6 @@ class VoiceOver {
             throw error;
         }
 
-        console.log("initialised voices");
     }
 
 

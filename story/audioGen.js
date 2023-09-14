@@ -4,8 +4,6 @@ const fs = require('fs');
 
 function CombineAudio(FolderPath, outputPath) {
     console.log("Combining audio files...")
-    console.log(FolderPath);
-    console.log(outputPath);
     
     // Read the audio files from the folder
     let audioFiles = fs.readdirSync(FolderPath)
@@ -18,8 +16,6 @@ function CombineAudio(FolderPath, outputPath) {
 
     
     // Combine the audio files
-
-    console.log(audioFiles);
 
     const combinedAudio = ffmpeg();
     audioFiles.forEach((audioFile) => {
