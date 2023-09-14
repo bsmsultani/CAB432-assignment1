@@ -33,7 +33,7 @@ function CombineAudio(FolderPath) {
         console.log('Audio files combined successfully!');
     });
 
-    combinedAudio.mergeToFile(path.join(FolderPath, 'combinedAudio.mp3'));
+    combinedAudio.mergeToFile(path.join(FolderPath, 'output.mp3'));
 }
 
-CombineAudio('/home/ubuntu/CAB432-assignment1/movies/chatcmpl-7yWWUtNKZYSxLoYEm4XZeOLLNX3t7/audio');
+module.exports = CombineAudio;
