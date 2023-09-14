@@ -2,7 +2,11 @@ const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
 const fs = require('fs');
 
-function CombineAudio(FolderPath) {
+function CombineAudio(FolderPath, outputPath) {
+    console.log("Combining audio files...")
+    console.log(FolderPath);
+    console.log(outputPath);
+    
     // Read the audio files from the folder
     let audioFiles = fs.readdirSync(FolderPath)
         .filter((file) => file.endsWith('.mp3'))
@@ -14,6 +18,8 @@ function CombineAudio(FolderPath) {
 
     
     // Combine the audio files
+
+    console.log(audioFiles);
 
     const combinedAudio = ffmpeg();
     audioFiles.forEach((audioFile) => {
@@ -33,7 +39,7 @@ function CombineAudio(FolderPath) {
         console.log('Audio files combined successfully!');
     });
 
-    combinedAudio.mergeToFile(path.join(FolderPath, 'output.mp3'));
+    combinedAudio.mergeToFile(outputPath);
 }
 
 module.exports = CombineAudio;

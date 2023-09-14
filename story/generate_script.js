@@ -12,8 +12,6 @@ const generate_script = async (movie_about) => {
   console.log("generating movie", movie_about);
   const prompt = `generate a movie about ${movie_about}, the script should only contain the dialogue of the main characters. Do not use script format, use this format instead: title, theme: tags, narrator: talks about the sense and what is happening, character: talking.`;
 
-  let history = [];
-
   let exampleResponse;
 
   // Check if a saved response exists in the response.json file
@@ -37,11 +35,6 @@ const generate_script = async (movie_about) => {
 
   const answer = completion.choices[0].message.content;
   const id = completion.id;
-
-
-  history.push({ id: id, prompt: movie_about, answer: answer});
-
-  fs.writeFileSync("history.json", JSON.stringify(history, null, 2), 'utf-8');
 
   return { id, answer };
 };

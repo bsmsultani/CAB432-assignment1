@@ -53,6 +53,7 @@ class Story {
         this.queue = [];
         this.characterVoice = {};
         this.imageQueue = [];
+
     }
 
     // The main logic of the story generation
@@ -79,12 +80,7 @@ class Story {
                 continue;
             }
         }
-
-        await VoiceOver.initialise_voices(); // initialise the voices
-
-        this.fillQueue();
-
-        return true;
+        
     }
 
     // break down the story into individual lines where each line belongs to a character
@@ -193,15 +189,37 @@ class Story {
         await Promise.all(promises);
     }
 
-    async generateStory () {
-        await this.AudioGen();
-
-        const FolderPath = `./movies/${this.movieId}/audio`;
-
-        CombineAudio(FolderPath);        
+    // save script 
+    saveScript() {
+        fs.writeFileSync(this.scriptPath, this.script);
     }
 
+    // save prompt
+    savePrompt() {
+        fs.writeFileSync(this.promptPath, this.prompt);
+    }
 
+    async about (about) {
+        this.prompt = about;
+
+        await this.initialize(about);
+        if (!this.success) {
+            return;
+        }
+
+        await VoiceOver.initialise_voices(); // initialise the voices
+        this.fillQueue();
+
+        const audioFolder = `./movies/${this.movieId}/audio`;
+        this.audioPath = `./movies/${this.movieId}/audio.mp3`;
+        this.scriptPath = `./movies/${this.movieId}/script.txt`;
+        this.promptPath = `./movies/${this.movieId}/prompt.txt`;
+
+        await this.AudioGen().then(() => {
+            CombineAudio(audioFolder, this.audioPath);
+        });
+
+    }
 }
 
 module.exports = Story;

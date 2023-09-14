@@ -2,9 +2,5 @@ const Story = require('./story/story');
 
 (async () => {
     const story = new Story();
-    await story.initialize("a war between robots and humans");
-
-    if (story.success) {
-        story.generateStory();
-    }
+    story.about("a person who is a programmer");
 })();
