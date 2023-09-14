@@ -94,7 +94,7 @@ class VoiceOver {
 
         const [response] = await client.synthesizeSpeech(request);
         const writeFile = util.promisify(fs.writeFile);
-        await writeFile(`./movies/${movieId}/audio/${sequence}.mp3`, response.audioContent, 'binary');
+        await writeFile(`${__dirname}/movies/${movieId}/audio/${sequence}.mp3`, response.audioContent, 'binary');
     }
 }
 

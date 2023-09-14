@@ -5,6 +5,7 @@ const CombineAudio = require('./audioGen');
 
 const fs = require('fs');
 const { promiseHooks } = require('v8');
+const { timeout } = require('nodemon/lib/config');
 
 class Story {
     static getTitle(script) {
@@ -146,8 +147,8 @@ class Story {
     }
 
     async ImageGen() {
-        if (!fs.existsSync(`./movies/${this.movieId}/images`)) {
-            fs.mkdirSync(`./movies/${this.movieId}/images`, { recursive: true });
+        if (!fs.existsSync(`${__dirname}/movies/${this.movieId}/images`)) {
+            fs.mkdirSync(`${__dirname}/movies/${this.movieId}/images`, { recursive: true });
         }
 
         const promises = this.imageQueue.map(async ({ id, description }) => {
@@ -160,7 +161,7 @@ class Story {
             }
 
             const buffer = await response.arrayBuffer();
-            fs.writeFileSync(`./movies/${this.movieId}/images/${id}.png`, Buffer.from(buffer));
+            fs.writeFileSync(`${__dirname}/movies/${this.movieId}/images/${id}.png`, Buffer.from(buffer));
         } catch (error) {
             console.error("Error generating image:", error);
         }
@@ -175,8 +176,8 @@ class Story {
     async AudioGen() {
         console.log("Generating audio");
         
-        if (!fs.existsSync(`./movies/${this.movieId}/audio`)) {
-            fs.mkdirSync(`./movies/${this.movieId}/audio`, { recursive: true });
+        if (!fs.existsSync(`${__dirname}/movies/${this.movieId}/audio`)) {
+            fs.mkdirSync(`${__dirname}/movies/${this.movieId}/audio`, { recursive: true });
         }
         let i = 1;
         // send parallel requests to the api to generate the audio for each line
@@ -210,14 +211,21 @@ class Story {
         await VoiceOver.initialise_voices(); // initialise the voices
         this.fillQueue();
 
-        const audioFolder = `./movies/${this.movieId}/audio`;
-        this.audioPath = `./movies/${this.movieId}/audio.mp3`;
-        this.scriptPath = `./movies/${this.movieId}/script.txt`;
-        this.promptPath = `./movies/${this.movieId}/prompt.txt`;
+        const audioFolder = `${__dirname}/movies/${this.movieId}/audio`;
+        this.audioPath = `${__dirname}/movies/${this.movieId}/audio.mp3`;
+        this.scriptPath = `${__dirname}/movies/${this.movieId}/script.txt`;
+        this.promptPath = `${__dirname}/movies/${this.movieId}/prompt.txt`;
 
-        await this.AudioGen().then(() => {
-            CombineAudio(audioFolder, this.audioPath);
-        });
+        await this.AudioGen();
+
+        // timeout to wait for the audio to be generated
+
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        CombineAudio(audioFolder, this.audioPath);
+
+        this.saveScript();
+        this.savePrompt();
 
     }
 }
