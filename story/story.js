@@ -2,10 +2,9 @@ const VoiceOver = require('./voice');
 const generate_script = require('./generate_script');
 const generate_image = require('./image_gen');
 const CombineAudio = require('./audioGen');
-
+const { translateText } = require('./translate');
 const fs = require('fs');
-const { promiseHooks } = require('v8');
-const { timeout } = require('nodemon/lib/config');
+
 
 class Story {
     static getTitle(script) {
@@ -49,6 +48,44 @@ class Story {
         const characterLine = characterTextMatch[2].trim();
         return { characterName, characterLine };
     }
+
+    static readFromFile(id) {
+        try {
+            const scriptPath = `${__dirname}/movies/${id}/script.txt`;
+            const script = fs.readFileSync(scriptPath, 'utf8');
+            const title = Story.getTitle(script);
+            const theme = Story.getTheme(script);
+            const content = Story.getStory(script);
+            const storyData = {
+                title,
+                theme,
+                content,
+            };
+            return storyData;
+        }
+        catch (e) {
+            throw new Error('Failed to retrieve story data');
+        }
+    }
+    
+    static async translateFromFile(id, languageCode) {
+        try {
+            const { title, theme, content } = Story.readFromFile(id);
+            const translatedTitle = await translateText(title, languageCode);
+            const translatedTheme = await translateText(theme, languageCode);
+            const translatedContent = await Promise.all(content.map(line => translateText(line, languageCode)));
+            const storyData = {
+                title: translatedTitle,
+                theme: translatedTheme,
+                content: translatedContent,
+            };
+
+            return storyData;
+        } catch (e) {
+            throw new Error('Failed to translate story data');
+        }
+    }
+
 
     constructor() {
         this.queue = [];
@@ -223,8 +260,10 @@ class Story {
 
         this.saveScript();
         this.savePrompt();
-
     }
+
+
+
 }
 
 module.exports = Story;

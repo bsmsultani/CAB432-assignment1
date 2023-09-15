@@ -1,8 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const cors = require('cors');
-
 const Story = require('./story/story');
+const { returnListLanguages } = require('./story/translate');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -16,7 +16,10 @@ app.use(express.static(`${__dirname}/story/movies`))
 app.get('/', (req, res) => {
   // go to the story.movies and get 10 movies, their names, and their ids
 
-  const movies = fs.readdirSync(`${__dirname}/story/movies`);
+  let movies = fs.readdirSync(`${__dirname}/story/movies`);
+
+  // select 10 random movies
+  movies = movies.sort(() => Math.random() - Math.random()).slice(0, 10);
 
   const movieData = movies.map((movie) => {
     const movieId = movie;
@@ -26,6 +29,7 @@ app.get('/', (req, res) => {
     // Create an object with movie data
     return { movieId, movieName, movieTheme };
   });
+  
 
   // Send back an array of objects as JSON
   res.send(movieData);
@@ -58,35 +62,43 @@ app.get('/story/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    console.log('id', id);
+    const { title, theme, content } = Story.readFromFile(id);
 
-    // Read the story script
-    const scriptPath = `${__dirname}/story/movies/${id}/script.txt`;
-    const script = fs.readFileSync(scriptPath, 'utf8');
+    const languages = await returnListLanguages();
 
-    const title = Story.getTitle(script);
-    const theme = Story.getTheme(script);
-    const content = Story.getStory(script);
-
-
-    // get audio file
-
-    const audioPath = `${__dirname}/story/movies/${id}/audio.mp3`;
-
-    // Read the audio file
-
-    const audio = fs.readFileSync(audioPath);
-
-    // Send back the story data
 
     const storyData = {
       title,
       theme,
       content,
-      audio,
+      languages,
     };
 
     res.send(storyData);
+  } catch (e) {
+    console.error(e);
+    res.status(500).send({ error: 'Failed to retrieve story data' });
+  }
+});
+
+app.get('/story/:id/:languageCode', async (req, res) => {
+  console.log('GET /story/:id/:languageCode');
+  try {
+    const { id, languageCode } = req.params;
+    const {title, theme, content } = await Story.translateFromFile(id, languageCode);
+    const languages = await returnListLanguages();
+
+    const translated = {
+      title,
+      theme,
+      content,
+      languages,
+    };
+
+    
+    res.send(translated);
+
+
   } catch (e) {
     console.error(e);
     res.status(500).send({ error: 'Failed to retrieve story data' });
