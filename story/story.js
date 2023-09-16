@@ -248,7 +248,7 @@ class Story {
         this.fillVoiceQueue();
 
         const audioFolder = `${__dirname}/movies/${this.movieId}/audio`;
-        this.audioPath = `${__dirname}/movies/${this.movieId}/audio.mp3`;
+        this.audioPath = `${__dirname}/movies/${this.movieId}/en-audio.mp3`;
         this.scriptPath = `${__dirname}/movies/${this.movieId}/script.txt`;
         this.promptPath = `${__dirname}/movies/${this.movieId}/prompt.txt`;
 
@@ -298,8 +298,6 @@ class Story {
             throw new Error("Failed to translate audio, voice is not supported")
         }
     }
-
-
 
 }
 
