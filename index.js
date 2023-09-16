@@ -3,6 +3,7 @@ const fs = require('fs');
 const cors = require('cors');
 const Story = require('./story/story');
 const { returnListLanguages } = require('./story/translate');
+const VoiceOver = require('./story/voice');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -66,7 +67,6 @@ app.get('/story/:id', async (req, res) => {
 
     const languages = await returnListLanguages();
 
-
     const storyData = {
       title,
       theme,
@@ -85,7 +85,19 @@ app.get('/story/:id/:languageCode', async (req, res) => {
   console.log('GET /story/:id/:languageCode');
   try {
     const { id, languageCode } = req.params;
-    const {title, theme, content } = await Story.translateFromFile(id, languageCode);
+    const { title, theme, content } = Story.readFromFile(id);
+    await VoiceOver.initialise_voices();
+    const story = new Story();
+    story.id = id;
+    story.title = title;
+    story.theme = theme;
+    story.story = content;
+    story.fillVoiceQueue();
+    await story.translateAudio(languageCode);
+    await story.AudioGen();
+    
+    
+
     const languages = await returnListLanguages();
 
     const translated = {

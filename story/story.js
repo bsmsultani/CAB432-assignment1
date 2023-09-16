@@ -123,7 +123,7 @@ class Story {
     // break down the story into individual lines where each line belongs to a character
     // and add it to the queue in the format { name: "character name", line: "character line" }
 
-    fillQueue() {
+    fillVoiceQueue() {
         // for each line in the script get the character name and the character line
         let i = 0;
         for (const line of this.story) {
@@ -222,6 +222,8 @@ class Story {
         });
 
         await Promise.all(promises);
+
+        console.log("Audio generated");
     }
 
     // save script 
@@ -243,7 +245,7 @@ class Story {
         }
 
         await VoiceOver.initialise_voices(); // initialise the voices
-        this.fillQueue();
+        this.fillVoiceQueue();
 
         const audioFolder = `${__dirname}/movies/${this.movieId}/audio`;
         this.audioPath = `${__dirname}/movies/${this.movieId}/audio.mp3`;
@@ -260,6 +262,41 @@ class Story {
 
         this.saveScript();
         this.savePrompt();
+    }
+
+    async translateAudio(languageCode) {
+        try
+        {
+            await VoiceOver.initialise_voices(languageCode);
+            const newCharacterVoice = this.characterVoice;
+            for (const voice in newCharacterVoice) {
+                const gender_ = newCharacterVoice[voice].gender;
+
+                let new_voice = new VoiceOver();
+                new_voice.randomVoiceByGender(gender_);
+
+                 while (new_voice in this.characterVoice) {
+                    new_voice = new_voice.randomVoiceByGender(gender_);
+                }
+
+                this.characterVoice[voice] = new_voice;
+            }
+
+            // translate the voice quque lines and replace the original lines with the translated lines
+            
+            const promises = this.queue.map(async ({ name, line }) => {
+                const translatedLine = await translateText(line, languageCode);
+                return { name, line: translatedLine };
+            });
+
+            this.queue = await Promise.all(promises);
+
+            console.log(this.characterVoice);
+        }
+        catch (e) {
+            console.log(e);
+            throw new Error("Failed to translate audio, voice is not supported")
+        }
     }
 
 

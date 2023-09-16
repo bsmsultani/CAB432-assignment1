@@ -13,7 +13,6 @@ function CombineAudio(FolderPath, outputPath) {
             return { num, path: path.join(FolderPath, file) };
         })
         .sort((a, b) => a.num - b.num);
-
     
     // Combine the audio files
 
