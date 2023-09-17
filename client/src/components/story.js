@@ -36,6 +36,9 @@ export default function Story() {
 
     const fetchTranslation = async () => {
       try {
+        if (selectedLanguage === 'en') {
+          return;
+        }
         const translationResponse = await fetch(`${server}/story/${id}/${selectedLanguage}`);
         if (!translationResponse.ok) {
           throw new Error('Failed to fetch data');

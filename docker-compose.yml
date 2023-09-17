@@ -3,6 +3,7 @@ services:
   server:
     build:
       context: ./server
+    image: bsmsultani/cab432-assignment1_server:latest
     ports:
       - "3001:3001"
     depends_on:
@@ -16,5 +17,6 @@ services:
   client:
     build:
       context: ./client
+    image: bsmsultani/cab432-assignment1_client:latest
     ports:
       - "3000:3000"
