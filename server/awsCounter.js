@@ -1,12 +1,15 @@
 const AWS = require("aws-sdk");
 require("dotenv").config();
 
-AWS.config.update({
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-  sessionToken: process.env.AWS_SESSION_TOKEN,
-  region: "ap-southeast-2",
-});
+// const updateConfig = () => AWS.config.update({
+//   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+//   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+//   sessionToken: process.env.AWS_SESSION_TOKEN,
+//   region: "ap-southeast-2",
+// });
+
+AWS.config.update({region: 'ap-southeast-2'});
+
 
 const s3 = new AWS.S3();
 const bucketName = "bismillah-page-bucket";
@@ -80,4 +83,4 @@ async function updateObjectInS3() {
 }
 
 
-module.exports = { createS3bucket, updateObjectInS3 }
+module.exports = { updateObjectInS3 };

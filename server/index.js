@@ -5,11 +5,11 @@ const Story = require('./story/story');
 const { returnListLanguages } = require('./story/translate');
 const VoiceOver = require('./story/voice');
 const CombineAudio = require('./story/audioGen');
-const { createS3bucket, updateObjectInS3 } = require('./awsCounter');
+const { updateObjectInS3 } = require('./awsCounter');
+
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-createS3bucket();
 
 // Enable CORS
 app.use(cors());
@@ -48,6 +48,18 @@ app.get('/', async (req, res) => {
 app.post('/create', async (req, res) => {
   try {
     const { storyAbout } = req.body;
+    // if the storyAbout is empty, send an error
+
+    if (!storyAbout) {
+      res.status(400).send({ error: 'Story about is empty' });
+      return;
+    }
+
+    if (storyAbout.length > 1000) {
+      res.status(400).send({ error: 'Story about is too long' });
+      return;
+    }
+
     const story = new Story();
     await story.generate(storyAbout);
 
@@ -116,29 +128,27 @@ app.get('/story/:id/:languageCode', async (req, res) => {
 
 app.get('/voice/:id/:languageCode', async (req, res) => {
   const { id, languageCode } = req.params;
-
   const AudioPath = `${__dirname}/story/movies/${id}/audio`;
   const output = `${__dirname}/story/movies/${id}/${languageCode}-audio.mp3`;
-  const folderPath = `${__dirname}/story/movies/${id}`
+  const folderPath = `${__dirname}/story/movies/${id}`;
 
-  await VoiceOver.initialise_voices();
+  try {
+    await VoiceOver.initialise_voices();
 
+    const languageAudioExists = async () => {
+      try {
+        const files = await fs.readdirSync(folderPath);
+        return files.some(file => file.endsWith('.mp3') && file.startsWith(languageCode));
+      } catch (e) {
+        console.error(e);
+        return false;
+      }
+    };
 
-
-  const languageAudioExists = async () => {
-    try {
-      const files = await fs.readdirSync(folderPath);
-      return files.some(file => file.endsWith('.mp3') && file.startsWith(languageCode));
-    } catch (e) {
-      console.error(e);
-      return false;
-    }
-  };
-
-  if (await languageAudioExists()) {
-    // Language audio already exists, send a success response
-    res.status(200).send({ success: true });
-  } else {
+    if (await languageAudioExists()) {
+      // Language audio already exists, send a success response
+      res.status(200).send({ success: true });
+    } else {
       if (languageCode === 'en') {
         const { title, theme, content } = Story.readFromFile(id);
         const story = new Story();
@@ -151,28 +161,31 @@ app.get('/voice/:id/:languageCode', async (req, res) => {
         await CombineAudio(AudioPath, output);
         res.status(200).send({ success: true });
       } else {
-    // Language audio does not exist, generate it
-          try {
-            const { title, theme, content } = Story.readFromFile(id);
-            const story = new Story();
-            story.movieId = id;
-            story.title = title;
-            story.theme = theme;
-            story.story = content;
-            story.fillVoiceQueue();
-            await story.translateAudio(languageCode);
-            await story.AudioGen();
-            await CombineAudio(AudioPath, output);
-            
-            // Send a success response
-            res.status(200).send({ success: true });
-          } catch (e) {
-            console.error(e);
-          }
-
-      // Send an error response if language is not supported
-      res.status(400).send({ error: 'Language not supported' });
+        // Language audio does not exist, generate it
+        try {
+          const { title, theme, content } = Story.readFromFile(id);
+          const story = new Story();
+          story.movieId = id;
+          story.title = title;
+          story.theme = theme;
+          story.story = content;
+          story.fillVoiceQueue();
+          await story.translateAudio(languageCode);
+          await story.AudioGen();
+          await CombineAudio(AudioPath, output);
+          // Send a success response
+          res.status(200).send({ success: true });
+        } catch (e) {
+          console.error(e);
+          // Send an error response if there is an exception
+          res.status(500).send({ error: 'Internal server error' });
+        }
+      }
     }
+  } catch (e) {
+    console.error(e);
+    // Send an error response if there is an exception at the top level
+    res.status(500).send({ error: 'Internal server error' });
   }
 });
 
@@ -180,8 +193,9 @@ app.get('/voice/:id/:languageCode', async (req, res) => {
 // show Path does not exist if the user tries to go to a path that does not exist
 
 app.get('*', (req, res) => {
-  res.status(404).send({ error: 'Path does not exist' });
+  res.status(404).send({ error: 'Page not found.' });
 });
+
 
 
 

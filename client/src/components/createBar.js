@@ -31,6 +31,9 @@ const CreateBar = () => {
           const movieId = data.movieId;
           navigate(`/story/${movieId}`);
         }
+        else {
+          alert(data.error);
+        }
       })
       .catch((err) => {
         alert(err);
