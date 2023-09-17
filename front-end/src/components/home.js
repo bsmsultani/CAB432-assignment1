@@ -7,13 +7,16 @@ export default function Home() {
   // Get server from local storage
   const server = localStorage.getItem('server');
   const [stories, setStories] = useState([]);
+  const [counter, setCounter] = useState(0);
 
   // Use useEffect to fetch stories from the server on mount
   useEffect(() => {
     fetch(server)
       .then(res => res.json())
       .then(data => {
-        setStories(data);
+        console.log(data);
+        setStories(data.movieData);
+        setCounter(data.counter);
       })
       .catch(err => {
         console.error(err);
@@ -24,6 +27,7 @@ export default function Home() {
     <div className="home">
       <CreateBar />
       <h2>Stories</h2>
+      <h3>{counter}</h3>
       <div className="movieList">
         {stories.length > 0 ? (
           stories.map(story => (

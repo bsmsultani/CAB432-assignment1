@@ -5,9 +5,11 @@ const Story = require('./story/story');
 const { returnListLanguages } = require('./story/translate');
 const VoiceOver = require('./story/voice');
 const CombineAudio = require('./story/audioGen');
+const { createS3bucket, updateObjectInS3 } = require('./awsCounter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+createS3bucket();
 
 // Enable CORS
 app.use(cors());
@@ -15,7 +17,7 @@ app.use(express.json()); // Middleware to parse JSON in the request body
 
 app.use(express.static(`${__dirname}/story/movies`))
 
-app.get('/', (req, res) => {
+app.get('/', async (req, res) => {
   // go to the story.movies and get 10 movies, their names, and their ids
 
   let movies = fs.readdirSync(`${__dirname}/story/movies`);
@@ -35,8 +37,10 @@ app.get('/', (req, res) => {
   });
   
 
+  const { counter } = await updateObjectInS3();
+
   // Send back an array of objects as JSON
-  res.send(movieData);
+  res.send({ movieData, counter });
 });
 
 
