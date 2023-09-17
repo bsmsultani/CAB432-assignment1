@@ -239,6 +239,7 @@ class Story {
     }
 
     async generate (about) {
+
         this.prompt = about;
 
         await this.initialize(about);
@@ -246,24 +247,22 @@ class Story {
             return;
         }
 
-        await VoiceOver.initialise_voices(); // initialise the voices
-        this.fillVoiceQueue();
+        // create the directory for the movie if it does not exist
+
+        if (!fs.existsSync(`${__dirname}/movies/${this.movieId}`)) {
+            fs.mkdirSync(`${__dirname}/movies/${this.movieId}`, { recursive: true });
+        }
+
 
         const audioFolder = `${__dirname}/movies/${this.movieId}/audio`;
         this.audioPath = `${__dirname}/movies/${this.movieId}/en-audio.mp3`;
         this.scriptPath = `${__dirname}/movies/${this.movieId}/script.txt`;
         this.promptPath = `${__dirname}/movies/${this.movieId}/prompt.txt`;
 
-        await this.AudioGen();
-
-        // timeout to wait for the audio to be generated
-
-        await new Promise(resolve => setTimeout(resolve, 10000));
-        
-        CombineAudio(audioFolder, this.audioPath);
-
         this.saveScript();
         this.savePrompt();
+
+        
     }
 
     async translateAudio(languageCode) {

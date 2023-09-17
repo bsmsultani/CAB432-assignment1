@@ -121,6 +121,10 @@ app.get('/voice/:id/:languageCode', async (req, res) => {
   const output = `${__dirname}/story/movies/${id}/${languageCode}-audio.mp3`;
   const folderPath = `${__dirname}/story/movies/${id}`
 
+  await VoiceOver.initialise_voices();
+
+
+
   const languageAudioExists = async () => {
     try {
       const files = await fs.readdirSync(folderPath);
@@ -135,29 +139,48 @@ app.get('/voice/:id/:languageCode', async (req, res) => {
     // Language audio already exists, send a success response
     res.status(200).send({ success: true });
   } else {
+      if (languageCode === 'en') {
+        const { title, theme, content } = Story.readFromFile(id);
+        const story = new Story();
+        story.movieId = id;
+        story.title = title;
+        story.theme = theme;
+        story.story = content;
+        story.fillVoiceQueue();
+        await story.AudioGen();
+        await CombineAudio(AudioPath, output);
+        res.status(200).send({ success: true });
+      } else {
     // Language audio does not exist, generate it
-    try {
-      const { title, theme, content } = Story.readFromFile(id);
-      await VoiceOver.initialise_voices();
-      const story = new Story();
-      story.movieId = id;
-      story.title = title;
-      story.theme = theme;
-      story.story = content;
-      story.fillVoiceQueue();
-      await story.translateAudio(languageCode);
-      await story.AudioGen();
-      await CombineAudio(AudioPath, output);
-      
-      // Send a success response
-      res.status(200).send({ success: true });
-    } catch (e) {
-      console.error(e);
+          try {
+            const { title, theme, content } = Story.readFromFile(id);
+            const story = new Story();
+            story.movieId = id;
+            story.title = title;
+            story.theme = theme;
+            story.story = content;
+            story.fillVoiceQueue();
+            await story.translateAudio(languageCode);
+            await story.AudioGen();
+            await CombineAudio(AudioPath, output);
+            
+            // Send a success response
+            res.status(200).send({ success: true });
+          } catch (e) {
+            console.error(e);
+          }
 
       // Send an error response if language is not supported
       res.status(400).send({ error: 'Language not supported' });
     }
   }
+});
+
+
+// show Path does not exist if the user tries to go to a path that does not exist
+
+app.get('*', (req, res) => {
+  res.status(404).send({ error: 'Path does not exist' });
 });
 
 
