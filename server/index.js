@@ -44,7 +44,7 @@ app.get('/', async (req, res) => {
 });
 
 
-
+// create a new story and send back the id of the story so the user can be redirected to the story page
 app.post('/create', async (req, res) => {
   try {
     const { storyAbout } = req.body;
@@ -76,7 +76,7 @@ app.post('/create', async (req, res) => {
 });
 
 
-
+// get the story data from the story id
 app.get('/story/:id', async (req, res) => {
   console.log('GET /story/:id');
   try {
@@ -99,6 +99,8 @@ app.get('/story/:id', async (req, res) => {
     res.status(500).send({ error: 'Failed to retrieve story data' });
   }
 });
+
+// get the story data from the story id and language code
 
 app.get('/story/:id/:languageCode', async (req, res) => {
   console.log('GET /story/:id/:languageCode');
@@ -124,6 +126,8 @@ app.get('/story/:id/:languageCode', async (req, res) => {
     res.status(500).send({ error: 'Failed to retrieve story data' });
   }
 });
+
+// get the audio from the story id
 
 
 app.get('/voice/:id/:languageCode', async (req, res) => {

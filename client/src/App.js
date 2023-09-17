@@ -4,7 +4,11 @@ import Home from './components/home';
 import Story from './components/story';
 
 function App() {
+
+  // set the server address
   localStorage.setItem("server", "http://localhost:3001");
+
+  // render the app
 
   return (
     <div className="App">

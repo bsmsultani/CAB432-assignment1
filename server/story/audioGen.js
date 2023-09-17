@@ -2,6 +2,15 @@ const ffmpeg = require('fluent-ffmpeg');
 const path = require('path');
 const fs = require('fs');
 
+
+// Combine the audio files in the folder into one file
+// the audio files are fragmented because of the way the audio is generated, each sentence is saved to a 
+    //separate file because they come from different voices
+// each file is named with a number, and the files are combined in order
+// the combined file is saved to the output path
+// the fragmented audio files are deleted
+
+
 function CombineAudio(FolderPath, outputPath) {
     console.log("Combining audio files...")
     

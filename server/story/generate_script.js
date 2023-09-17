@@ -3,9 +3,13 @@ const { OpenAI } = require("openai");
 const dotenv = require("dotenv");
 dotenv.config();
 
+// Create an instance of the OpenAI API wrapper class
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY
 });
+
+// Generate a movie script based on the movie_about parameter
 
 const generate_script = async (movie_about) => {
 

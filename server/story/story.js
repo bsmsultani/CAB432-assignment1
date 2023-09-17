@@ -7,6 +7,8 @@ const fs = require('fs');
 
 
 class Story {
+
+    // get the title of the story from the script
     static getTitle(script) {
         const titleReg = /Title:\s*(.*)/;
         const title = script.match(titleReg);
@@ -17,6 +19,7 @@ class Story {
         return titleText;
     }
 
+    // get the theme of the story from the script
     static getTheme(script) {
         const themeReg = /Theme:\s*(.*)/;
         const theme = script.match(themeReg);
@@ -27,6 +30,7 @@ class Story {
         return themeText;
     }
 
+    // get the main story from the script
     static getStory(script) {
         const storyReg = /Theme:.*\n([\s\S]*)/;
         const story = script.match(storyReg);
@@ -36,6 +40,8 @@ class Story {
         const storyText = story[1];
         return storyText.split('\n').filter(line => line !== '');
     }
+
+    // get the character name and the character line from the line of the script
 
     static getCharacterText(line) {
         const characterTextReg = /(.*):(.*)/;
@@ -48,6 +54,9 @@ class Story {
         const characterLine = characterTextMatch[2].trim();
         return { characterName, characterLine };
     }
+
+    // read the story data from the file system
+    // if the user wants to read the story data from the file system, the story data is already generated
 
     static readFromFile(id) {
         try {
@@ -68,6 +77,8 @@ class Story {
         }
     }
     
+    // translate the story data from the file system
+    // if the user wants to translate the story data from the file system, the story data is already generated
     static async translateFromFile(id, languageCode) {
         try {
             const { title, theme, content } = Story.readFromFile(id);
@@ -88,13 +99,19 @@ class Story {
 
 
     constructor() {
+
+        // the queue contains the lines of the story in the format { name: "character name", line: "character line" }
         this.queue = [];
+        // the character voice contains the voices of the characters
         this.characterVoice = {};
+        // the image queue contains the prompts for the image generation based on the script
         this.imageQueue = [];
 
     }
 
-    // The main logic of the story generation
+    // initialize the story or try to generate the story based on the about string at most 4 times
+    // it can detect if the story format is correct or not
+
     async initialize(about) {
         this.success = false; // If the story generation was successful. i.e. if the story format was correct
 
@@ -205,7 +222,7 @@ class Story {
     
     }
 
-    
+    // generate the audio for the story
 
     async AudioGen() {
         console.log("Generating audio");
@@ -238,6 +255,9 @@ class Story {
         fs.writeFileSync(this.promptPath, this.prompt);
     }
 
+    // main function to generate the story
+    // the about parameter is the string that the user enters to describe the story they want to generate
+
     async generate (about) {
 
         this.prompt = about;
@@ -261,9 +281,10 @@ class Story {
 
         this.saveScript();
         this.savePrompt();
-
         
     }
+
+    // translate the audio story into the language specified by the languageCode parameter
 
     async translateAudio(languageCode) {
         try

@@ -9,6 +9,7 @@ const CreateBar = () => {
 
   const server = localStorage.getItem('server');
 
+  // a function to create a story by sending a request to the server
   const createStory = async (storyAbout) => {
     const response = await fetch(`${server}/create`, {
       method: 'POST',
@@ -22,6 +23,8 @@ const CreateBar = () => {
     console.log(data);
     return data;
   }
+
+  // a function to handle the creation of a story
 
   const handleCreate = () => {
     setIsLoading(true);

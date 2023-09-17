@@ -86,7 +86,7 @@ class VoiceOver {
     }
     
 
-
+    // gets a random voice for the character
     getVoice() {
         const { voiceName, lang, ssmlGender } = VoiceOver.getRandomVoice(this.characterName);
         this.voice = voiceName;
@@ -107,6 +107,7 @@ class VoiceOver {
         await writeFile(`${__dirname}/movies/${movieId}/audio/${sequence}.mp3`, response.audioContent, 'binary');
     }
 
+    // if the gender of the name is already known get a voice by gender instead
     randomVoiceByGender(gender) {
         if (gender.toLowerCase() === "female") {
             const randomIdx = Math.floor(Math.random() * VoiceOver.voices.female.length);

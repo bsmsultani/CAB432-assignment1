@@ -9,6 +9,8 @@ export default function Story() {
   const server = localStorage.getItem('server');
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
+  // fetch the story from the server when the component mounts
+
   useEffect(() => {
     const fetchStory = async () => {
       try {
@@ -27,10 +29,14 @@ export default function Story() {
     fetchStory();
   }, [id]);
 
+  // a function to handle the change of language
+
   const handleLanguageChange = (event) => {
     const newLanguage = event.target.value;
     setSelectedLanguage(newLanguage);
   };
+
+  // fetch the translation when the language changes
 
   useEffect(() => {
 
@@ -53,6 +59,8 @@ export default function Story() {
     };
     fetchTranslation();
   }, [selectedLanguage]);
+
+  // check if the audio is supported for the selected language if yes then show the audio player
 
 
   useEffect(() => {
