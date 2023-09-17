@@ -89,46 +89,8 @@ app.get('/story/:id/:languageCode', async (req, res) => {
   try {
     const { id, languageCode } = req.params;
 
-    let languageSupported = false;
-    const FolderPath = `${__dirname}/story/movies/${id}/audio`;
-    const output = `${__dirname}/story/movies/${id}/${languageCode}-output.mp3`;
-
-    const getLanguageAudio = async (languageCode) => {
-      try {
-        const { title, theme, content } = Story.readFromFile(id);
-        await VoiceOver.initialise_voices();
-        const story = new Story();
-        story.movieId = id;
-        story.title = title;
-        story.theme = theme;
-        story.story = content;
-        story.fillVoiceQueue();
-        await story.translateAudio(languageCode);
-        await story.AudioGen();
-        console.log(output);
-        // timeout to wait for the files to be written
-        setTimeout(() => {
-          CombineAudio(FolderPath, output);
-        }, 3000);
-
-      } catch (e) {
-        console.error(e);
-        languageSupported = true;
-      }
-    }
-
-    const languageAudioExists = () => {
-      // read the files in FolderPath that end with .mp3 and check if starts with languageCode
-      const files = fs.readdirSync(FolderPath);
-      const languageAudioExists = files.some(file => file.endsWith('.mp3') && file.startsWith(languageCode));
-      return languageAudioExists;
-    }
-
-    if (!languageAudioExists()) {
-      await getLanguageAudio(languageCode);
-    }
-
-    const { title, theme, content } = Story.translateFromFile(id, languageCode);    
+    const { title, theme, content } = await Story.translateFromFile(id, languageCode);    
+    
 
     const languages = await returnListLanguages();
 
@@ -137,7 +99,6 @@ app.get('/story/:id/:languageCode', async (req, res) => {
       theme,
       content,
       languages,
-      languageSupported,
     };
 
     res.send(storyData);
@@ -147,6 +108,55 @@ app.get('/story/:id/:languageCode', async (req, res) => {
     res.status(500).send({ error: 'Failed to retrieve story data' });
   }
 });
+
+
+app.get('/voice/:id/:languageCode', async (req, res) => {
+  const { id, languageCode } = req.params;
+
+  const AudioPath = `${__dirname}/story/movies/${id}/audio`;
+  const output = `${__dirname}/story/movies/${id}/${languageCode}-audio.mp3`;
+  const folderPath = `${__dirname}/story/movies/${id}`
+
+  const languageAudioExists = async () => {
+    try {
+      const files = await fs.readdirSync(folderPath);
+      return files.some(file => file.endsWith('.mp3') && file.startsWith(languageCode));
+    } catch (e) {
+      console.error(e);
+      return false;
+    }
+  };
+
+  if (await languageAudioExists()) {
+    // Language audio already exists, send a success response
+    res.status(200).send({ success: true });
+  } else {
+    // Language audio does not exist, generate it
+    try {
+      const { title, theme, content } = Story.readFromFile(id);
+      await VoiceOver.initialise_voices();
+      const story = new Story();
+      story.movieId = id;
+      story.title = title;
+      story.theme = theme;
+      story.story = content;
+      story.fillVoiceQueue();
+      await story.translateAudio(languageCode);
+      await story.AudioGen();
+      await CombineAudio(AudioPath, output);
+      
+      // Send a success response
+      res.status(200).send({ success: true });
+    } catch (e) {
+      console.error(e);
+
+      // Send an error response if language is not supported
+      res.status(400).send({ error: 'Language not supported' });
+    }
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

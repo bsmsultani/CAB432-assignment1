@@ -209,22 +209,24 @@ class Story {
 
     async AudioGen() {
         console.log("Generating audio");
-        
+      
         if (!fs.existsSync(`${__dirname}/movies/${this.movieId}/audio`)) {
-            fs.mkdirSync(`${__dirname}/movies/${this.movieId}/audio`, { recursive: true });
+          fs.mkdirSync(`${__dirname}/movies/${this.movieId}/audio`, { recursive: true });
         }
+        
         let i = 1;
-        // send parallel requests to the api to generate the audio for each line
-        const promises = this.queue.map(async ({ name, line }) => {
-            try { this.characterVoice[name].play(line, this.movieId, i); }
-            catch (e) { console.log(e); }
-            i++;
-        });
-
-        await Promise.all(promises);
-
+        
+        for (const { name, line } of this.queue) {
+          try {
+            await this.characterVoice[name].play(line, this.movieId, i);
+            i++; // Increment for the next file
+          } catch (e) {
+            console.log(e);
+          }
+        }
         console.log("Audio generated");
-    }
+      }
+      
 
     // save script 
     saveScript() {
