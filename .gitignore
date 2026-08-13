@@ -1,2 +1,7 @@
 *venv
 node_modules
+
+# Ignore server credentials and environment files
+/server/.env
+/server/googleAPI.json
+.env

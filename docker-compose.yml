@@ -8,12 +8,9 @@ services:
       - "3001:3001"
     depends_on:
       - client
-    environment:
-      - OPENAI_API_KEY=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
-      - GOOGLE_APPLICATION_CREDENTIALS=./googleAPI.json
-      - AWS_ACCESS_KEY_ID="ASIA5DYSEEJ4RLORSA5P"
-      - AWS_SECRET_ACCESS_KEY="n3UVAd5GRVGRposwl8jnGF7xQYDrBMceUCiUEzmh"
-      - AWS_SESSION_TOKEN="IQoJb3JpZ2luX2VjEKL//////////wEaDmFwLXNvdXRoZWFzdC0yIkcwRQIhAPJ7DbryvvFo2EtHv74ze+bJfkIUFKBBMDr9XKw7mYngAiBuKOU6TDzq5xqoB806egT+UNd2C4b9feRvxPJiztZnfCquAwiL//////////8BEAMaDDkwMTQ0NDI4MDk1MyIMDLEehOXsHtKaLpI2KoID31LKWqkg0ZSX0mYP6FAIlAr7QfcxD6/oZmowyVsrInsjkrdi6EWarpN4Oxwh5To0bog5gmVAOT4ysd//5kFJnuPz4N3haZ6mQU1FchGcsijZAlsmog5vmy0lqx/HKYpIw35Rw3oYOpdmNtNS2lJXS7fAv3hFYeZGB/TTefKhSeQN7EPv/HPV067CLUdBD7peRJqDGPx6gX0T/7WQT4ytylxuh+ZPwc+Xnd11uF+FaVccUsk6l/NTMuQtyQew6EOeSbI6xx9hMugJ6jwxPqLOJ0AKBuI4PaXISBQrG4KQY+Un3DA/sy98qU7/dhwB2VuYi8HR37mdXYSW1XpcqotyxTXSd7ZWZtcKbkfHG3c25WHt2neHjn0ePb/nKW1ziudUeCSQGTV3S2ikkinCDuKpQXRy70rR83suNa2XZctyLAKOj2mLGxRN4lxJnG3anYdSIYpOQVRgRWpeHDD5tv73fwUwWZsP3PCEexSW0lQivPOOdk0LdVbESzMGsM6aC9L05bEwqoubqAY6pgFNQll1sZvqfcPjAyC76ulwa2E5UUZSP5yiarqsL2vDDN9CiCtouzxP3VDiYBK1PIC7MvNsCHyD/pX4JljqaOvy4ckxVUY9iB2ur6AhGr4u/syMFyBaWr2jRYgSUG1B14m+F6NoSQ8aZy3YGmZTZLGPh3PxfBvNWksYYsW++6ZKTwSktnjS/IU6e9Ti0/BcQS1aR/KYeEOxDut80iHISlo6QyvPZomB"
+    env_file:
+      - ./server/.env
+
   client:
     build:
       context: ./client
